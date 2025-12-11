@@ -1,3 +1,5 @@
+from typing import Optional
+
 from lane import Lane
 from traffic_light import TrafficLight
 
@@ -14,9 +16,11 @@ class Road:
         self.L3 = Lane(f"{road_id}L3")  # free lane
 
     def is_priority_lane(self):
+        """Checking if L2 should be treated as priority lane"""
         return self.L2.size() > 10
 
-    def normal_lane_vehicles(self, active_priority_lane=None):
+    def total_normal_lane_vehicles(self, active_priority_lane=None):
+        """Counting vehicles in L2 if not currently active priority lane"""
         total = 0
         if self.L2 is not active_priority_lane:
             total += self.L2.size()
