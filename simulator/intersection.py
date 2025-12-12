@@ -77,3 +77,13 @@ class Intersection:
                 for _ in range(v):
                     if lane.size() > 0:
                         lane.remove_vehicle()
+
+    def step(self):
+        """
+        Simulation step: priority lane first if active, else normal lanes
+        """
+        active_priority = self.get_active_priority_lane()
+        if active_priority:
+            self.serve_priority_lane(active_priority)
+        else:
+            self.serve_normal_lanes()
