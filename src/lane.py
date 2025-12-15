@@ -14,7 +14,7 @@ class Lane:
         self.queue.enqueue(vehicle)
 
     def remove_vehicle(self):
-        self.queue.dequeue()
+        return self.queue.dequeue()
 
     def size(self):
         return self.queue.size()

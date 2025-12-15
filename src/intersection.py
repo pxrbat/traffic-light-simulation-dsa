@@ -1,3 +1,4 @@
+from priority_queue import LanePriorityQueue
 from road import Road
 
 
@@ -6,23 +7,12 @@ class Intersection:
         # Initializing 4 roads
         self.roads = {"A": Road("A"), "B": Road("B"), "C": Road("C"), "D": Road("D")}
 
-    def get_active_priority_lane(self):
-        candidates = []
-        """
-        Adding all the possible candidate roads with >10
-        vehicles to the list.
-        """
+        # Priority Queue for all L2 lanes
+        self.priority_queue = LanePriorityQueue()
+
+        # Adding L2 lane of each road to priority queue
         for road in self.roads.values():
-            if road.is_priority_lane():
-                candidates.append(road.L2)
-        # If no road is priority return None
-        if len(candidates) == 0:
-            return None
-        """
-        If more than one road has >10 vehicles, then
-        road with most vehicles is priority
-        """
-        return max(candidates, key=lambda k: k.size())
+            self.priority_queue.enqueue(road.L2)
 
     def total_normal_vehicles_count(self, active_priority_lane=None):
         """
@@ -31,7 +21,9 @@ class Intersection:
         """
         total = 0
         for road in self.roads.values():
-            total += road.total_normal_lane_vehicles(active_priority_lane)
+            lane = road.L2
+            if lane is not active_priority_lane:
+                total += lane.size()
         return total
 
     def normal_service_count(self, active_priority_lane=None):
@@ -58,32 +50,58 @@ class Intersection:
         if lane.light:
             lane.light.set_green()
 
-    def serve_priority_lane(self, lane):
-        """ "Serve priority lane until there are less than 5 vehicles"""
-        self.set_green_lane(lane)
-        while lane.size() > 5:
-            lane.remove_vehicle()
+        # Log to track lane receiving green light
+        print(f"[LOG] Green light set for {lane.lane_id}")
+
+    def serve_priority_lane(self, lane=None):
+        """
+        Serve the lane at the front of the priority queue(lane with highest priority) until it has <= 5 vehicles
+        """
+        self.priority_queue.update_priority()
+        active_lane = self.priority_queue.peek()
+        if active_lane and active_lane.size() > 5:
+            self.set_green_lane(active_lane)
+            while active_lane.size() > 5:
+                removed_vehicle = active_lane.remove_vehicle()
+                # Log to track when a vehicle is removed from priority lane
+                print(
+                    f"[LOG] Removed {removed_vehicle.vehicle_id} from {active_lane.lane_id}"
+                )
+            return True
+        return False
 
     def serve_normal_lanes(self):
         """
         Serve all normal lanes according to normal service formula
         """
-        active_priority = self.get_active_priority_lane()
-        v = self.normal_service_count(active_priority_lane=active_priority)
+        v = self.normal_service_count()
         for road in self.roads.values():
             lane = road.L2
-            if lane is not active_priority and lane.size() > 0:
+            if lane.size() > 0:
                 self.set_green_lane(lane)
                 for _ in range(v):
                     if lane.size() > 0:
-                        lane.remove_vehicle()
+                        removed_vehicle = lane.remove_vehicle()
+                        if removed_vehicle is not None:
+                            # Log to track when a vehicle is removed from normal lane
+                            print(
+                                f"[LOG] Removed {removed_vehicle.vehicle_id} from {lane.lane_id}"
+                            )
+
+    def get_active_priority_lane(self):
+        """
+        Mimics get_active_priority_lane function in previous version.
+        Returns the lane currently at the front of the priority queue
+        """
+        self.priority_queue.update_priority()
+        lane = self.priority_queue.peek()
+        if lane and lane.size() > 5:
+            return lane
+        return None
 
     def step(self):
         """
-        Simulation step: priority lane first if active, else normal lanes
+        Simulation step: Serve priority lane first if active, else normal lanes
         """
-        active_priority = self.get_active_priority_lane()
-        if active_priority:
-            self.serve_priority_lane(active_priority)
-        else:
+        if not self.serve_priority_lane():
             self.serve_normal_lanes()
