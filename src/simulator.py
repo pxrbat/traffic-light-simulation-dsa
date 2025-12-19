@@ -3,6 +3,7 @@ import time
 
 from intersection import Intersection
 from vehicle import Vehicle
+from metrics import Metrics
 
 
 def add_random_vehicles(intersection):
@@ -47,7 +48,11 @@ def print_status(intersection, step_count):
 
 
 def run_simulation():
-    intersection = Intersection()
+    #Create metrics object
+    metrics = Metrics(time_per_vehicle=1)
+
+    #Pass metrics to Intersection class
+    intersection = Intersection(metrics = metrics)
     step_count = 0
     print("Starting simulation for L2 lanes. Press Ctrl + C to stop.")
     try:
@@ -63,11 +68,17 @@ def run_simulation():
             # print current lane status
             print_status(intersection, step_count)
 
+            #Print metrics summary every 5 steps
+            if step_count%5==0:
+                metrics.print_summary()
+
             # wait for next simulation
             time.sleep(1)
 
     except KeyboardInterrupt:
         print("\nSimulation stopped.")
+        # print final metrics summary after simulation stops
+        metrics.print_summary()
 
 
 if __name__ == "__main__":
