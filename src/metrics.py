@@ -6,7 +6,7 @@ Kept intentionally simple.
 
 
 class Metrics:
-    def init(self, time_per_vehicle=1):
+    def __init__(self, time_per_vehicle=1):
         # Rough guess (in seconds) for how long one vehicle takes to pass.
         self.time_per_vehicle = time_per_vehicle
         # Overall count across every lane we've seen so far
