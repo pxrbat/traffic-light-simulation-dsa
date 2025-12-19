@@ -1,9 +1,9 @@
 from priority_queue import LanePriorityQueue
 from road import Road
-
+from metrics import Metrics
 
 class Intersection:
-    def __init__(self):
+    def __init__(self, metrics: Metrics = None):
         # Initializing 4 roads
         self.roads = {"A": Road("A"), "B": Road("B"), "C": Road("C"), "D": Road("D")}
 
@@ -13,6 +13,9 @@ class Intersection:
         # Adding L2 lane of each road to priority queue
         for road in self.roads.values():
             self.priority_queue.enqueue(road.L2)
+        
+        # Metrics object
+        self.metrics = metrics
 
     def total_normal_vehicles_count(self, active_priority_lane=None):
         """
@@ -63,6 +66,9 @@ class Intersection:
             self.set_green_lane(active_lane)
             while active_lane.size() > 5:
                 removed_vehicle = active_lane.remove_vehicle()
+                # Metrics record if provided
+                if self.metrics and removed_vehicle:
+                    self.metrics.record_vehicle_served(active_lane.lane_id)
                 # Log to track when a vehicle is removed from priority lane
                 print(
                     f"[LOG] Removed {removed_vehicle.vehicle_id} from {active_lane.lane_id}"
@@ -82,6 +88,9 @@ class Intersection:
                 for _ in range(v):
                     if lane.size() > 0:
                         removed_vehicle = lane.remove_vehicle()
+                        # Metrics record if provided
+                        if self.metrics and removed_vehicle:
+                            self.metrics.record_vehicle_served(lane.lane_id)
                         if removed_vehicle is not None:
                             # Log to track when a vehicle is removed from normal lane
                             print(
