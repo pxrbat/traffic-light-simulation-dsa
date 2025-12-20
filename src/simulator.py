@@ -1,11 +1,15 @@
 import random
 import time
+import os
 
 from intersection import Intersection
 from vehicle import Vehicle
 from metrics import Metrics
 
+DATA_DIR = "lane_data"
 
+# Kept this function intact as a helper just in case even though I don't need it. 
+# MEMO: Remove this later
 def add_random_vehicles(intersection):
     """
     Randomly adding 0-2 vehicles for L2 lane of each road each step to simulate arrivals to L2 lanes
@@ -24,6 +28,30 @@ def add_random_vehicles(intersection):
     #     vehicle_id = f"{road.L2.lane_id}_{int(time.time() * 1000) % 100000}"
     #     road.L2.add_vehicle(Vehicle(vehicle_id))
 
+def load_vehicles_from_files(intersection):
+    """
+    Pull vehicle IDs from lane files and push them into the queues. Once read, wipe the files so we don't process the same cars again
+    """
+    for road in intersection.roads.values():
+        lane = road.L2
+        file_path = os.path.join(DATA_DIR,f"{lane.lane_id}.txt")
+
+        if not os.path.exists(file_path):
+            continue
+
+        with open(file_path, "r") as f:
+            lines = f.readlines()
+        
+        if not lines:
+            continue
+
+        for line in lines:
+            vehicle_id = line.strip()
+            if vehicle_id:
+                lane.add_vehicle(Vehicle(vehicle_id))
+        
+        #Clear file after reading data
+        open(file_path, "w").close()
 
 def print_status(intersection, step_count):
     """
@@ -59,8 +87,8 @@ def run_simulation():
         while True:
             step_count += 1
 
-            # randomly add vehicles to L2 lanes
-            add_random_vehicles(intersection)
+            # Load vehicles data stored in files
+            load_vehicles_from_files(intersection)
 
             # execute intersection step (priority first, else normal)
             intersection.step()
