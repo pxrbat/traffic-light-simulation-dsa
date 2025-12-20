@@ -32,6 +32,7 @@ def load_vehicles_from_files(intersection):
     """
     Pull vehicle IDs from lane files and push them into the queues. Once read, wipe the files so we don't process the same cars again
     """
+    added_any = False
     for road in intersection.roads.values():
         lane = road.L2
         file_path = os.path.join(DATA_DIR,f"{lane.lane_id}.txt")
@@ -52,6 +53,12 @@ def load_vehicles_from_files(intersection):
         
         #Clear file after reading data
         open(file_path, "w").close()
+    
+    # Just a safeguard feature to know when the generator stopped adding vehicles
+    if not added_any:
+        print("[LOG] No new vehicles added this step")
+    
+    return added_any
 
 def print_status(intersection, step_count):
     """
