@@ -69,5 +69,5 @@ def run_generator_loop():
         print("\nTraffic generator stopped by user.")
 
 # Entry point
-if __name__ == "main":
+if __name__ == "__main__":
     run_generator_loop()
