@@ -7,15 +7,13 @@ class Intersection:
         # Initializing 4 roads
         self.roads = {"A": Road("A"), "B": Road("B"), "C": Road("C"), "D": Road("D")}
 
-        # Priority Queue for all L2 lanes
+        # Priority Queue for AL2 lane only
         self.priority_queue = LanePriorityQueue()
+        self.priority_queue.register_lane(self.roads["A"].L2)
 
-        # Adding L2 lane of each road to priority queue
-        for road in self.roads.values():
-            self.priority_queue.enqueue(road.L2)
-        
         # Metrics object
         self.metrics = metrics
+        
 
     def total_normal_vehicles_count(self, active_priority_lane=None):
         """
@@ -30,7 +28,9 @@ class Intersection:
         return total
 
     def normal_service_count(self, active_priority_lane=None):
-        """Computing number of vehicles to serve from normal lanes"""
+        """
+        Computing number of vehicles to serve from normal lanes
+        """
         total = self.total_normal_vehicles_count(active_priority_lane)
         n = 0
         # Counting number of normal lanes
@@ -58,9 +58,8 @@ class Intersection:
 
     def serve_priority_lane(self, lane=None):
         """
-        Serve the lane at the front of the priority queue(lane with highest priority) until it has <= 5 vehicles
+        Serve AL2 lane if it is priority until it has <= 5 vehicles
         """
-        self.priority_queue.update_priority()
         active_lane = self.priority_queue.peek()
         if active_lane and active_lane.size() > 5:
             self.set_green_lane(active_lane)
@@ -83,6 +82,8 @@ class Intersection:
         v = self.normal_service_count()
         for road in self.roads.values():
             lane = road.L2
+            if lane is self.priority_queue.peek():
+                continue #skip AL2
             if lane.size() > 0:
                 self.set_green_lane(lane)
                 for _ in range(v):
@@ -98,11 +99,6 @@ class Intersection:
                             )
 
     def get_active_priority_lane(self):
-        """
-        Mimics get_active_priority_lane function in previous version.
-        Returns the lane currently at the front of the priority queue
-        """
-        self.priority_queue.update_priority()
         lane = self.priority_queue.peek()
         if lane and lane.size() > 5:
             return lane
