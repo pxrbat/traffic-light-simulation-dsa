@@ -8,26 +8,6 @@ from metrics import Metrics
 
 DATA_DIR = "lane_data"
 
-# Kept this function intact as a helper just in case even though I don't need it. 
-# MEMO: Remove this later
-def add_random_vehicles(intersection):
-    """
-    Randomly adding 0-2 vehicles for L2 lane of each road each step to simulate arrivals to L2 lanes
-    """
-    for road in intersection.roads.values():
-        if random.random() < 0.8:  # 80% chance of adding a vehicle
-            vehicle_id = f"{road.L2.lane_id}_{int(time.time() * 1000) % 100000}"  # creating random vehicle id's
-            road.L2.add_vehicle(Vehicle(vehicle_id))
-        if random.random() < 0.4:  # smaller chance of adding a second vehicle
-            vehicle_id = f"{road.L2.lane_id}_{int(time.time() * 1000) % 100000 + 1}"
-            road.L2.add_vehicle(Vehicle(vehicle_id))
-    """
-    Add 1 Vehicle to each L2 lane every step for testing
-    """
-    # for road in intersection.roads.values():
-    #     vehicle_id = f"{road.L2.lane_id}_{int(time.time() * 1000) % 100000}"
-    #     road.L2.add_vehicle(Vehicle(vehicle_id))
-
 def load_vehicles_from_files(intersection):
     """
     Pull vehicle IDs from lane files and push them into the queues. Once read, wipe the files so we don't process the same cars again
