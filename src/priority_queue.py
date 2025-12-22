@@ -1,48 +1,30 @@
-# priority_queue.py
-
 
 class LanePriorityQueue:
     """
-    Lanes that have more than 10 vehicles are treated as highest priority.
+    Simplified priority queue.
+    Only L2 road of lane A is ever treated as priority. Other lanes are never promoted to priority unlike in previous iterations. This keeps the traffic logic aligned with the scope of the assignment.
     """
 
-    def __init__(self):
-        self.items = []
+    def __init__(self, priority_lane_id = "AL2"):
+        self.priority_lane_id = priority_lane_id
+        self.priority_lane = None
 
-    def enqueue(self, lane):
-        # Add a lane if it's not already in the queue
-        if lane not in self.items:
-            self.items.append(lane)
-
-    def dequeue(self):
-        # Remove and return the front item in the queue
-        if not self.items:
-            return None
-        return self.items.pop(0)
-
-    def update_priority(self):
-        """
-        Promotes the lane with queue size > 10 to the front of the queue.
-        If multiple lanes qualify, promotes the first one encountered.
-        """
-        for i, lane in enumerate(self.items):
-            if lane.size() > 10:
-                # move it to the front
-                self.items.insert(0, self.items.pop(i))
-                break
+    def register_lane(self, lane):
+        if lane.lane_id == self.priority_lane_id:
+            self.priority_lane = lane
 
     def peek(self):
-        # Returns lane at the front of the queue without removing it
-        if not self.items:
-            return None
-        return self.items[0]
+        if self.priority_lane and self.priority_lane.size()>0:
+            return self.priority_lane
+        return None
+    
+    def dequeue(self):
+        return self.peek()
 
     def is_empty(self):
-        return len(self.items) == 0
-
+        return self.peek() is None
+    
     def __str__(self):
-        # Print function for debugging purpose
-        id = []
-        for lane in self.items:
-            id.append(lane.lane_id)
-        return "[" + ", ".join(id) + "]"
+        if self.priority_lane:
+            return f"[PRIORITY: {self.priority_lane.lane_id}]"
+        return "[NO PRIORITY LANE]"
