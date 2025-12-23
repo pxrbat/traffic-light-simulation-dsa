@@ -60,8 +60,8 @@ def run_generator_loop():
     try:
         while True:
             generate_vehicles()
-            # Sleeping for 1 second feels realistic to me
-            time.sleep(1)
+            # Sleeping for 5 second feels realistic to me
+            time.sleep(5)
 
             #MEMO: Maybe make this configurable later
     
