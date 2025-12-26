@@ -78,3 +78,26 @@ Ensure the folder looks like this:
     |── `.gitignore`
     |── `README.md`
 ```
+
+## Execution Instructions
+
+After cloning the repository, open your terminal/ command prompt to go to the project directory.
+```bash
+cd traffic-light-simulation-dsa
+```
+To simulate real-time traffic using this project, you must run the **Generator** `traffic_generator.py` and the **Visualizer** `visualizer.py` simultaneously in two separate terminal windows.
+
+First, start the **Generator** by opening a terminal and writing the following command: 
+```bash
+python src/traffic_generator.py
+```
+*Output*: You should logs like `[GENERATOR] Added 1 vehicles to AL2`. 
+
+Keep this window **open**.
+
+Next, start the **Visualizer** by opening a **second** terminal window and running the following command:
+```bash
+python src/visualizer.py
+```
+*Output*: A **Pygame** window will launch that simulates real-time traffic intersection.
+
