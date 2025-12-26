@@ -76,4 +76,5 @@ Ensure the folder looks like this:
         |── `vehicle.py`
         |── `visualizer.py`
     |── `.gitignore`
+    |── `README.md`
 ```
