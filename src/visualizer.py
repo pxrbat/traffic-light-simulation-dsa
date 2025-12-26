@@ -237,7 +237,7 @@ class Simulation:
         pygame.init()
 
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption("Aesthetic LHT Visualizer")
+        pygame.display.set_caption("Traffic Light Visualizer")
 
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont("Outfit", 36)
