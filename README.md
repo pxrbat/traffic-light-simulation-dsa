@@ -91,7 +91,7 @@ First, start the **Generator** by opening a terminal and writing the following c
 ```bash
 python src/traffic_generator.py
 ```
-*Output*: You should logs like `[GENERATOR] Added 1 vehicles to AL2`. 
+*Output*: You should see logs like `[GENERATOR] Added 1 vehicles to AL2`. 
 
 Keep this window **open**.
 
