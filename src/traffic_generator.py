@@ -62,8 +62,6 @@ def run_generator_loop():
             generate_vehicles()
             # Sleeping for 5 second feels realistic to me
             time.sleep(5)
-
-            #MEMO: Maybe make this configurable later
     
     except KeyboardInterrupt:
         print("\nTraffic generator stopped by user.")

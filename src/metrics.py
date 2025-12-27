@@ -50,4 +50,3 @@ class Metrics:
         for lane_id, count in self.vehicles_served_per_lane.items():
             print(f"Lane {lane_id}: {count} vehicles served")
 
-        # Note: Might add averages or percentages later if needed,
