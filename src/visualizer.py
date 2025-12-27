@@ -237,7 +237,7 @@ class Simulation:
         pygame.init()
 
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption("Aesthetic LHT Visualizer")
+        pygame.display.set_caption("Aesthetic LHT Visualizer - AL2 Priority")
 
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont("Outfit", 36)
@@ -252,6 +252,9 @@ class Simulation:
 
         self.current_green = "A"
         self.timer = 0
+        
+        # PRIORITY LOGIC: Track state of priority mode
+        self.priority_active = False
 
     def draw_aesthetic_bg(self):
         self.screen.fill(BG_GREEN)
@@ -300,7 +303,9 @@ class Simulation:
         }
 
         for road, pos in labels.items():
-            txt = self.font.render(f"ROAD {road}", True, TEXT_COLOR)
+            # Highlight Road A label if priority is active
+            color = GLOW_GREEN if (road == "A" and self.priority_active) else TEXT_COLOR
+            txt = self.font.render(f"ROAD {road}", True, color)
             self.screen.blit(txt, pos)
 
         # Traffic lights w/ glow
@@ -323,6 +328,23 @@ class Simulation:
 
             pygame.draw.circle(self.screen, color, pos, 10)
 
+    # PRIORITY LOGIC: Calculate if AL2 needs priority
+    def update_priority_state(self):
+        # Count vehicles in Road A that haven't crossed the line yet
+        al2_count = 0
+        for v in self.vehicles["A"]:
+            if not v.crossed_line:
+                al2_count += 1
+        
+        # Hysteresis Logic:
+        # Activate if > 10
+        if not self.priority_active and al2_count > 10:
+            self.priority_active = True
+        
+        # Deactivate only if it drops to <= 5
+        elif self.priority_active and al2_count <= 5:
+            self.priority_active = False
+
     def run(self):
         while True:
             # --- file-based vehicle injection ---
@@ -333,18 +355,28 @@ class Simulation:
                     with open(path, "r") as f:
                         for line in f:
                             vid = line.strip()
+                            # PhysicalVehicle defaults to L2, which matches the file
                             self.vehicles[rid].append(
                                 PhysicalVehicle(vid, rid)
                             )
                     open(path, "w").close()
 
+            # --- Update Priority State ---
+            self.update_priority_state()
+
             # --- traffic signal timer ---
-            self.timer += 1
-            if self.timer > 300:
-                order = ["A", "D", "C", "B"]
-                idx = order.index(self.current_green)
-                self.current_green = order[(idx + 1) % 4]
+            if self.priority_active:
+                # Force Green for A, pause normal timer logic
+                self.current_green = "A"
                 self.timer = 0
+            else:
+                # Normal Round-robin logic
+                self.timer += 1
+                if self.timer > 300:
+                    order = ["A", "D", "C", "B"]
+                    idx = order.index(self.current_green)
+                    self.current_green = order[(idx + 1) % 4]
+                    self.timer = 0
 
             self.draw_aesthetic_bg()
 
