@@ -40,6 +40,40 @@ The project is designed with a **Producer-Consumer** architecture using file I/O
 - **Dynamic Traffic Generation**: A separate generator script `traffic_generator.py` simulates varying vehicle loads by writing data to file buffers in real-time.
 - **Metrics Tracking**: `metrics.py` tracks total vehicles served overall along with vehicles served per lane.
 
+## 🧱 Data Structures Used
+
+The project uses a set of fundamental data structures to manage the simulation state efficiently. Every structure is picked because it matches a particular need of either traffic flow or signal control.
+
+### 1. Linear Queue (FIFO)
+* **Implementation:** Python `List`, wrapped in `Queue` class.
+* **File:** `queue_ds.py`
+* **Usage:** Used by all standard lanes to manage vehicles.
+* **Why:** Traffic naturally follows a First-In-First-Out (FIFO) order. The first car to arrive at the intersection is the first one to leave when the light turns green.
+* **Key Operations:**
+    * `enqueue(item)`: Adds a vehicle to the back of the line.
+    * `dequeue()`: Removes the vehicle at the front of the line.
+    * `peek()`: Inspects the front vehicle without removing it (useful for checking if a car is waiting).
+
+### 2. Priority Queue (Custom Wrapper)
+* **Implementation:** Custom Logic Wrapper `LanePriorityQueue`.
+* **File:** `priority_queue.py`
+* **Usage:** Specifically monitors **Road A, Lane 2 (AL2)**.
+* **Why:** To implement the assignment's requirement of "dynamic priority." Instead of sorting every single vehicle, this structure promotes an entire specific lane to the "front" of the scheduling queue when its congestion exceeds a threshold ($> 10$ vehicles).
+* **Logic:** It behaves like a standard queue until the high-traffic condition is met, at which point it overrides the standard scheduler.
+
+### 3. Hash Map (Dictionary)
+* **Implementation:** Python `dict`.
+* **Usage:** * **`intersection.py`**: Stores the collection of road objects (`self.roads = {"A": ..., "B": ...}`).
+    * **`visualizer.py`**: Groups physical vehicle sprites by their road ID for easier updating and rendering.
+    * **`metrics.py`**: Tracks the count of served vehicles per lane (`self.vehicles_served_per_lane = {"AL2": 5, ...}`).
+* **Why:** Provides $O(1)$ constant-time access to any road or lane object using its ID (e.g., "A", "BL2"), removing the need to iterate through lists to find specific simulation entities.
+
+### 4. Vector (2D)
+* **Implementation:** `pygame.math.Vector2`.
+* **File:** `visualizer.py`
+* **Usage:** Manages the physical position $(x, y)$ and velocity of vehicles.
+* **Why:** Simplifies the physics calculations. Vectors allow for easy calculation of distance (`pos.distance_to()`) and rotation (`rotate()`) needed for smooth turning animations and collision avoidance.
+
 ## Installation & Prerequisites
 
 This project requires **Python 3.x** to run as intended. So, ensure you have **Python 3.x** installed.
